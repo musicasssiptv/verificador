@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificador de Links de TV</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      resize: none;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    .result p {
+      color: #333;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Verificador de Links de TV</h2>
+    <textarea id="linkList" placeholder="Cole sua lista de links aqui (incluindo #EXTINF: linhas)"></textarea>
+    <button onclick="verificarLinks()">Verificar Links</button>
+
+    <div class="result" id="resultado"></div>
+  </div>
+
+  <script>
+    async function verificarLinks() {
+      const links = document.getElementById("linkList").value.split("\n").filter(link => link.trim() !== "");
+      const resultadoDiv = document.getElementById("resultado");
+      const linksValidos = [];
+      let currentMetadata = "";
+
+      for (let i = 0; i < links.length; i++) {
+        const linha = links[i].trim();
+
+        // Verifica se a linha é uma linha de metadados
+        if (linha.startsWith("#EXTINF:")) {
+          currentMetadata = linha; // Salva o metadado atual
+          continue; // Pula para a próxima linha
+        }
+
+        // Tenta verificar apenas o link
+        try {
+          const response = await fetch(linha, { method: 'HEAD' });
+          if (response.ok) {
+            linksValidos.push(currentMetadata + "\n" + linha); // Adiciona o metadado junto com o link
+          }
+        } catch (error) {
+          console.log(`Erro ao verificar ${linha}: ${error}`);
+        }
+
+        // Limpa o metadado para o próximo link
+        currentMetadata = "";
+      }
+
+      resultadoDiv.innerHTML = `<p>Links válidos:</p><textarea rows="10" style="width: 100%;">${linksValidos.join("\n")}</textarea>`;
+    }
+  </script>
+</body>
+</html>
