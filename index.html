@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verificador de Links de TV</title>
+  <title>Verificador</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -56,6 +56,15 @@
       background-color: #45a049;
     }
 
+    .progress-container {
+      margin-top: 20px;
+    }
+
+    progress {
+      width: 100%;
+      height: 20px;
+    }
+
     .result {
       margin-top: 20px;
       padding: 10px;
@@ -72,9 +81,14 @@
 </head>
 <body>
   <div class="container">
-    <h2>Verificador de Links de TV</h2>
+    <h2>Verificador</h2>
     <textarea id="linkList" placeholder="Cole sua lista de links aqui (incluindo #EXTINF: linhas)"></textarea>
     <button onclick="verificarLinks()">Verificar Links</button>
+
+    <div class="progress-container">
+      <progress id="progressBar" value="0" max="100"></progress>
+      <p id="progressText">Progresso: 0%</p>
+    </div>
 
     <div class="result" id="resultado"></div>
   </div>
@@ -83,6 +97,8 @@
     async function verificarLinks() {
       const links = document.getElementById("linkList").value.split("\n").filter(link => link.trim() !== "");
       const resultadoDiv = document.getElementById("resultado");
+      const progressBar = document.getElementById("progressBar");
+      const progressText = document.getElementById("progressText");
       const linksValidos = [];
       let currentMetadata = "";
 
@@ -104,6 +120,11 @@
         } catch (error) {
           console.log(`Erro ao verificar ${linha}: ${error}`);
         }
+
+        // Atualiza o progresso
+        const progresso = Math.round(((i + 1) / links.length) * 100);
+        progressBar.value = progresso;
+        progressText.textContent = `Progresso: ${progresso}%`;
 
         // Limpa o metadado para o próximo link
         currentMetadata = "";
